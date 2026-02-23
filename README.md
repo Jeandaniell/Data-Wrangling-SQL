@@ -103,6 +103,3 @@ This project contains a series of SQL queries designed to analyze business data 
 
 ---
 
-## Author
-
-*SQL project — Academic assignment*
