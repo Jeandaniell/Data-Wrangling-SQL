@@ -1,0 +1,19 @@
+WITH CustomerStats AS (
+    SELECT
+        CustomerID,
+        COUNT(DISTINCT ProductID) AS DistinctProducts,
+        SUM(Qty) AS TotalQuantity
+    FROM dbo.Purchase
+    GROUP BY CustomerID
+),
+TotalProducts AS (
+    SELECT COUNT(*) AS TotalProducts
+    FROM dbo.Product
+)
+SELECT c.*
+FROM dbo.Customer c
+JOIN CustomerStats cs ON c.CustomerID = cs.CustomerID
+CROSS JOIN TotalProducts tp
+WHERE cs.DistinctProducts = tp.TotalProducts
+  AND cs.TotalQuantity > 50;
+

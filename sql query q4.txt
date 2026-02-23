@@ -1,0 +1,53 @@
+
+WITH OrderValues AS (
+    SELECT 
+        o.CustomerID,
+        o.OrderID,
+        SUM(ol.Quantity * ol.UnitPrice) AS OrderTotalValue
+    FROM Sales.Orders o
+    JOIN Sales.OrderLines ol ON o.OrderID = ol.OrderID
+    GROUP BY o.CustomerID, o.OrderID
+),
+InvoiceValues AS (
+    SELECT 
+        o.CustomerID,
+        o.OrderID,
+        ISNULL(SUM(il.Quantity * il.UnitPrice), 0) AS InvoiceTotalValue
+    FROM Sales.Orders o
+    LEFT JOIN Sales.Invoices i ON o.OrderID = i.OrderID
+    LEFT JOIN Sales.InvoiceLines il ON i.InvoiceID = il.InvoiceID
+    GROUP BY o.CustomerID, o.OrderID
+),
+CustomerLosses AS (
+    SELECT 
+        ov.CustomerID,
+        c.CustomerName,
+        cc.CustomerCategoryID,
+        cc.CustomerCategoryName,
+        SUM(ov.OrderTotalValue - iv.InvoiceTotalValue) AS TotalLoss
+    FROM OrderValues ov
+    JOIN InvoiceValues iv ON ov.OrderID = iv.OrderID
+    JOIN Sales.Customers c ON ov.CustomerID = c.CustomerID
+    JOIN Sales.CustomerCategories cc ON c.CustomerCategoryID = cc.CustomerCategoryID
+    GROUP BY ov.CustomerID, c.CustomerName, cc.CustomerCategoryID, cc.CustomerCategoryName
+),
+MaxLossPerCategory AS (
+    SELECT 
+        cl.CustomerCategoryID,
+        cl.CustomerCategoryName,
+        cl.CustomerID,
+        cl.CustomerName,
+        cl.TotalLoss,
+        RANK() OVER (PARTITION BY cl.CustomerCategoryID ORDER BY cl.TotalLoss DESC) AS LossRank
+    FROM CustomerLosses cl
+)
+
+SELECT 
+    CustomerCategoryID,
+    CustomerCategoryName,
+    TotalLoss,
+    CustomerName,
+	CustomerID
+FROM MaxLossPerCategory
+WHERE LossRank = 1
+ORDER BY TotalLoss DESC;

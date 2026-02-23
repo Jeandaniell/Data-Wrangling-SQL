@@ -1,0 +1,52 @@
+WITH OrderTotals AS (
+    SELECT
+        o.CustomerID,
+        o.OrderID,
+        SUM(ol.Quantity * ol.UnitPrice) AS OrderTotalValue
+    FROM Sales.Orders o
+    JOIN Sales.OrderLines ol 
+        ON o.OrderID = ol.OrderID
+    GROUP BY o.CustomerID, o.OrderID
+),
+InvoiceTotals AS (
+    SELECT
+        o.CustomerID,
+        o.OrderID,
+        SUM(il.Quantity * il.UnitPrice) AS InvoiceTotalValue
+    FROM Sales.Orders o
+    JOIN Sales.Invoices i 
+        ON o.OrderID = i.OrderID
+    JOIN Sales.InvoiceLines il 
+        ON i.InvoiceID = il.InvoiceID
+    GROUP BY o.CustomerID, o.OrderID
+)
+SELECT
+    c.CustomerID,
+    c.CustomerName,
+    COUNT(ot.OrderID) AS TotalNBOrders,
+    COUNT(it.OrderID) AS TotalNBInvoices,
+    SUM(ot.OrderTotalValue) AS OrdersTotalValue,
+    SUM(it.InvoiceTotalValue) AS InvoicesTotalValue,
+    ABS(SUM(ot.OrderTotalValue) - SUM(it.InvoiceTotalValue)) AS AbsoluteValueDifference
+FROM Sales.Customers c
+JOIN OrderTotals ot 
+    ON c.CustomerID = ot.CustomerID
+JOIN InvoiceTotals it 
+    ON ot.CustomerID = it.CustomerID 
+    AND ot.OrderID = it.OrderID
+GROUP BY
+    c.CustomerID,
+    c.CustomerName
+ORDER BY
+    AbsoluteValueDifference DESC,
+    TotalNBOrders ASC,
+    c.CustomerName ASC;
+UPDATE Sales.InvoiceLines
+SET UnitPrice = UnitPrice + 20
+WHERE InvoiceLineID = (SELECT TOP 1 il.InvoiceLineID
+                       FROM Sales.InvoiceLines il
+                       WHERE il.InvoiceID = (SELECT TOP 1 i.InvoiceID
+                                             FROM Sales.Invoices i
+                                             WHERE i.CustomerID = 1060
+                                             ORDER BY i.InvoiceID ASC)
+                       ORDER BY il.InvoiceLineID ASC);
