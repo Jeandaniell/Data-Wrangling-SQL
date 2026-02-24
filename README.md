@@ -1,9 +1,9 @@
 # Data-Wrangling-SQL
-# SQL Project — WideWorldImporters & SQLPlayground
+# SQL Project — WideWorldImporter
 
 ## Overview
 
-This project contains a series of SQL queries designed to analyze business data consistency, data quality, revenue loss, and customer purchasing behavior across two databases: **WideWorldImporters** and **SQLPlayground**.
+This project contains a series of SQL queries designed to analyze business data consistency, data quality, revenue loss, and customer purchasing behavior across one database: **WideWorldImporters**.
 
 ---
 
@@ -11,8 +11,7 @@ This project contains a series of SQL queries designed to analyze business data 
 
 | Database | Used in |
 |---|---|
-| `WideWorldImporters` | Q1, Q2, Q3 |
-| `SQLPlayground` | Q4 |
+| `WideWorldImporters` | Q1, Q2, Q3, Q4 |
 
 ---
 
@@ -71,7 +70,7 @@ This project contains a series of SQL queries designed to analyze business data 
 
 ### Q4 — Customers Who Purchased All Products and More Than 50 Units
 
-**Database:** `SQLPlayground`
+**Database:** `WideWorldImporters`
 
 **Objective:** Select all data for customers who meet **both** of the following criteria:
 
@@ -98,7 +97,6 @@ This project contains a series of SQL queries designed to analyze business data 
 ## Prerequisites
 
 - Microsoft SQL Server with the **WideWorldImporters** sample database restored
-- Access to the **SQLPlayground** database
 - SQL Server Management Studio (SSMS) or any compatible SQL client
 
 ---
